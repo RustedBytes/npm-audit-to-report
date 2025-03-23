@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run npm audit
+      - name: Run audit
         run: yarn audit --json > security-audit.json
 
       - name: Generate report
