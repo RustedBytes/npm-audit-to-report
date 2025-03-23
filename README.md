@@ -1,6 +1,6 @@
 # npm-audit-to-report
 
-A simple Go program that converts `audit.json` to an issue with Markdown
+A simple Go program that converts `security-audit.json` to `security-audit.md` so you can use it in CI pipeline.
 
 ## Install
 
