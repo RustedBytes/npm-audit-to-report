@@ -1,0 +1,40 @@
+name: Dependency Audit
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Run weekly on Sunday
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  audit:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run audit
+        continue-on-error: true
+        run: yarn audit --json > security-audit.json
+
+      - name: Generate report
+        continue-on-error: true
+        run: |
+          wget -O "audit-to-report" "https://github.com/egorsmkv/npm-audit-to-report/releases/download/v0.1.0/npm-audit-to-report_linux_amd64"
+          chmod +x ./audit-to-report
+          ./audit-to-report --fail-if-no-vulnerabilities --audit-file security-audit.json --output-file report.md
+
+      - name: Create issue if problems found
+        uses: peter-evans/create-issue-from-file@v5
+        if: ${{ success() }}
+        with:
+          title: Weekly Dependency Audit
+          content-filepath: ./report.md
+          labels: maintenance, dependencies
