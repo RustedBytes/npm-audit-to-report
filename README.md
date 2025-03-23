@@ -2,6 +2,10 @@
 
 A simple Go program that converts `security-audit.json` to `security-audit.md` so you can use it in CI pipeline.
 
+## How it looks like?
+
+<img loading="lazy" alt="voice-report" width="800px" src="https://github.com/egorsmkv/npm-audit-to-report/raw/main/demo.png" width="100%"/>
+
 ## Install
 
 ```bash
