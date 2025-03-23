@@ -13,7 +13,7 @@ You can check [dependency-audit.yml](https://github.com/egorsmkv/npm-audit-to-re
 ## Install
 
 ```bash
-go install github.com/egorsmkv/npm-audit-to-report
+go install github.com/egorsmkv/npm-audit-to-report@latest
 ```
 
 ## Usage
