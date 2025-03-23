@@ -14,8 +14,11 @@ import (
 	"github.com/integrii/flaggy"
 )
 
-var auditFile = "security-audit.json"
-var outputFile = "security-audit.md"
+var (
+	auditFile               = "security-audit.json"
+	outputFile              = "security-audit.md"
+	failIfNoVulnerabilities = false
+)
 
 type auditLine struct {
 	Type string `json:"type"`
@@ -168,6 +171,7 @@ func generateMarkdown(lines []auditLine) (string, error) {
 func main() {
 	flaggy.String(&auditFile, "i", "audit-file", "Path to the audit file")
 	flaggy.String(&outputFile, "o", "output-file", "Path to the output file")
+	flaggy.Bool(&failIfNoVulnerabilities, "f", "fail-if-no-vulnerabilities", "Fail if no vulnerabilities found")
 	flaggy.Parse()
 
 	// Check existence of the audit file
@@ -184,6 +188,21 @@ func main() {
 	lines, err := parseJSON(auditFile)
 	if err != nil {
 		log.Fatal("Error parsing JSON: ", err)
+	}
+
+	// Count the number of vulnerabilities
+	var totalVulnerabilities int
+	for _, line := range lines {
+		if line.Type == "auditSummary" {
+			totalVulnerabilities += line.Data.Vulnerabilities.Info
+			totalVulnerabilities += line.Data.Vulnerabilities.Low
+			totalVulnerabilities += line.Data.Vulnerabilities.Moderate
+			totalVulnerabilities += line.Data.Vulnerabilities.High
+			totalVulnerabilities += line.Data.Vulnerabilities.Critical
+		}
+	}
+	if totalVulnerabilities == 0 && failIfNoVulnerabilities {
+		log.Fatal("No vulnerabilities found")
 	}
 
 	// Generate the markdown
