@@ -83,7 +83,11 @@ func parseJSON(filename string) ([]auditLine, error) {
 	if err != nil {
 		return lines, err
 	}
-	defer file.Close()
+	defer func() {
+	    if err := file.Close(); err != nil {
+		log.Fatal("Error closing file: ", err)
+	    }
+	}()
 
 	// Read the file line by line
 	scanner := bufio.NewScanner(file)
