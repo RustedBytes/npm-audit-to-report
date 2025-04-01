@@ -1,0 +1,28 @@
+version: 2
+
+project_name: npm-audit-to-report
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      # trims path
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+
+gomod:
+  proxy: true
+
+checksum:
+  name_template: "checksums.txt"
+
+source:
+  enabled: true
