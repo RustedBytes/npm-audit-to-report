@@ -1,7 +1,7 @@
 # npm-audit-to-report
 
 [![build](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml)
-[![golangci-lint](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/golangci-lint.yml)
+[![lint](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml)
 
 A simple Go program that converts `security-audit.json` to `security-audit.md` so you can use it in CI pipeline.
 
