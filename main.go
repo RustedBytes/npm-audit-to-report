@@ -23,6 +23,44 @@ var (
 type auditLine struct {
 	Type string `json:"type"`
 	Data struct {
+		Advisory struct {
+			Created       time.Time   `json:"created"`
+			Updated       time.Time   `json:"updated"`
+			FoundBy       interface{} `json:"found_by"`
+			Deleted       interface{} `json:"deleted"`
+			NpmAdvisoryID interface{} `json:"npm_advisory_id"`
+			ReportedBy    interface{} `json:"reported_by"`
+			Metadata      interface{} `json:"metadata"`
+			Cvss          struct {
+				VectorString string  `json:"vectorString"`
+				Score        float64 `json:"score"`
+			} `json:"cvss"`
+			References         string `json:"references"`
+			Overview           string `json:"overview"`
+			Title              string `json:"title"`
+			Access             string `json:"access"`
+			Severity           string `json:"severity"`
+			ModuleName         string `json:"module_name"`
+			VulnerableVersions string `json:"vulnerable_versions"`
+			GithubAdvisoryID   string `json:"github_advisory_id"`
+			Recommendation     string `json:"recommendation"`
+			PatchedVersions    string `json:"patched_versions"`
+			URL                string `json:"url"`
+			Findings           []struct {
+				Version string   `json:"version"`
+				Paths   []string `json:"paths"`
+			} `json:"findings"`
+			Cves []string `json:"cves"`
+			Cwe  []string `json:"cwe"`
+			ID   int      `json:"id"`
+		} `json:"advisory"`
+		Resolution struct {
+			Path     string `json:"path"`
+			ID       int    `json:"id"`
+			Dev      bool   `json:"dev"`
+			Optional bool   `json:"optional"`
+			Bundled  bool   `json:"bundled"`
+		} `json:"resolution"`
 		Vulnerabilities struct {
 			Info     int `json:"info"`
 			Low      int `json:"low"`
@@ -34,44 +72,6 @@ type auditLine struct {
 		DevDependencies      int `json:"devDependencies"`
 		OptionalDependencies int `json:"optionalDependencies"`
 		TotalDependencies    int `json:"totalDependencies"`
-		Resolution           struct {
-			ID       int    `json:"id"`
-			Path     string `json:"path"`
-			Dev      bool   `json:"dev"`
-			Optional bool   `json:"optional"`
-			Bundled  bool   `json:"bundled"`
-		} `json:"resolution"`
-		Advisory struct {
-			Findings []struct {
-				Version string   `json:"version"`
-				Paths   []string `json:"paths"`
-			} `json:"findings"`
-			FoundBy            interface{} `json:"found_by"`
-			Deleted            interface{} `json:"deleted"`
-			References         string      `json:"references"`
-			Created            time.Time   `json:"created"`
-			ID                 int         `json:"id"`
-			NpmAdvisoryID      interface{} `json:"npm_advisory_id"`
-			Overview           string      `json:"overview"`
-			ReportedBy         interface{} `json:"reported_by"`
-			Title              string      `json:"title"`
-			Metadata           interface{} `json:"metadata"`
-			Cves               []string    `json:"cves"`
-			Access             string      `json:"access"`
-			Severity           string      `json:"severity"`
-			ModuleName         string      `json:"module_name"`
-			VulnerableVersions string      `json:"vulnerable_versions"`
-			GithubAdvisoryID   string      `json:"github_advisory_id"`
-			Recommendation     string      `json:"recommendation"`
-			PatchedVersions    string      `json:"patched_versions"`
-			Updated            time.Time   `json:"updated"`
-			Cvss               struct {
-				Score        float64 `json:"score"`
-				VectorString string  `json:"vectorString"`
-			} `json:"cvss"`
-			Cwe []string `json:"cwe"`
-			URL string   `json:"url"`
-		} `json:"advisory"`
 	} `json:"data"`
 }
 
@@ -84,9 +84,9 @@ func parseJSON(filename string) ([]auditLine, error) {
 		return lines, err
 	}
 	defer func() {
-	    if err := file.Close(); err != nil {
-		log.Fatal("Error closing file: ", err)
-	    }
+		if err := file.Close(); err != nil {
+			log.Fatal("Error closing file: ", err)
+		}
 	}()
 
 	// Read the file line by line
@@ -219,7 +219,7 @@ func main() {
 	fmt.Println(markdown)
 
 	// Write the markdown to the output file
-	err = os.WriteFile(outputFile, []byte(markdown), 0644)
+	err = os.WriteFile(outputFile, []byte(markdown), 0o644)
 	if err != nil {
 		log.Fatal("Error writing to the output file: ", err)
 	}

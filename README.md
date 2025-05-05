@@ -31,3 +31,23 @@ npm-audit-to-report [FLAGS]
     -o --output-file                  Path to the output file (default: security-audit.md)
     -f --fail-if-no-vulnerabilities   Fail if no vulnerabilities found
 ```
+
+## Development
+
+### Install tools
+
+```
+go install github.com/dkorunic/betteralign/cmd/betteralign@latest
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.6
+go install golang.org/x/tools/cmd/deadcode@latest
+go install mvdan.cc/gofumpt@latest
+```
+
+### Linting
+
+```
+betteralign -apply ./...
+golangci-lint run -c .golangci.yml ./...
+deadcode ./...
+gofumpt -l -w .
+```
