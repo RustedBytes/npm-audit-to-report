@@ -1,3 +1,4 @@
+// This file is part of the npm-audit-to-report project.
 package main
 
 import (
@@ -15,22 +16,21 @@ import (
 )
 
 var (
-	auditFile               = "security-audit.json"
-	outputFile              = "security-audit.md"
-	failIfNoVulnerabilities = false
+	errNoData    = errors.New("no data in the audit file")
+	errNoSummary = errors.New("no summary auditLine found")
 )
 
 type auditLine struct {
 	Type string `json:"type"`
 	Data struct {
 		Advisory struct {
-			Created       time.Time   `json:"created"`
-			Updated       time.Time   `json:"updated"`
-			FoundBy       interface{} `json:"found_by"`
-			Deleted       interface{} `json:"deleted"`
-			NpmAdvisoryID interface{} `json:"npm_advisory_id"`
-			ReportedBy    interface{} `json:"reported_by"`
-			Metadata      interface{} `json:"metadata"`
+			Created       time.Time `json:"created"`
+			Updated       time.Time `json:"updated"`
+			FoundBy       any       `json:"found_by"`
+			Deleted       any       `json:"deleted"`
+			NpmAdvisoryID any       `json:"npm_advisory_id"`
+			ReportedBy    any       `json:"reported_by"`
+			Metadata      any       `json:"metadata"`
 			Cvss          struct {
 				VectorString string  `json:"vectorString"`
 				Score        float64 `json:"score"`
@@ -76,13 +76,17 @@ type auditLine struct {
 }
 
 func parseJSON(filename string) ([]auditLine, error) {
-	var lines []auditLine
+	var (
+		lines []auditLine
+		line  auditLine
+	)
 
 	// Open the file
 	file, err := os.Open(filename)
 	if err != nil {
-		return lines, err
+		return lines, fmt.Errorf("error opening file: %w", err)
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			log.Fatal("Error closing file: ", err)
@@ -95,10 +99,10 @@ func parseJSON(filename string) ([]auditLine, error) {
 		jsonData := scanner.Text()
 
 		// Parse the JSON data
-		var line auditLine
+
 		err := json.Unmarshal([]byte(jsonData), &line)
 		if err != nil {
-			return lines, err
+			return lines, fmt.Errorf("error unmarshalling JSON: %w", err)
 		}
 
 		lines = append(lines, line)
@@ -108,83 +112,96 @@ func parseJSON(filename string) ([]auditLine, error) {
 }
 
 func generateMarkdown(lines []auditLine) (string, error) {
-	var r []string
+	var (
+		text []string
+		line auditLine
+	)
 
 	if len(lines) == 0 {
-		return "", errors.New("no data in the audit file")
+		return "", errNoData
 	}
 
 	// Get the summary auditLine
-	var s auditLine
-	for _, line := range lines {
-		if line.Type == "auditSummary" {
-			s = line
+	for _, currentLine := range lines {
+		if currentLine.Type == "auditSummary" {
+			line = currentLine
+
 			break
 		}
 	}
 
 	// Check if we have the summary auditLine
-	if s.Type == "" {
-		return "", errors.New("no summary auditLine found")
+	if line.Type == "" {
+		return "", errNoSummary
 	}
 
-	data := s.Data
+	data := line.Data
 	vuls := data.Vulnerabilities
 
 	dateTime := gostradamus.UTCNow()
 	now := dateTime.Format("YYYY-MM-DD HH:mm:ss")
 
-	r = append(r, fmt.Sprintf("# Security Audit: %s (UTC)", now))
-	r = append(r, "")
+	text = append(text, fmt.Sprintf("# Security Audit: %s (UTC)", now))
+	text = append(text, "")
 
-	r = append(r, "## Dependencies")
-	r = append(r, "")
-	r = append(r, fmt.Sprintf("- Project: %d", data.Dependencies))
-	r = append(r, fmt.Sprintf("- Dev: %d", data.DevDependencies))
-	r = append(r, fmt.Sprintf("- Optional: %d", data.OptionalDependencies))
-	r = append(r, fmt.Sprintf("- Total: %d", data.TotalDependencies))
-	r = append(r, "")
+	text = append(text, "## Dependencies")
+	text = append(text, "")
+	text = append(text, fmt.Sprintf("- Project: %d", data.Dependencies))
+	text = append(text, fmt.Sprintf("- Dev: %d", data.DevDependencies))
+	text = append(text, fmt.Sprintf("- Optional: %d", data.OptionalDependencies))
+	text = append(text, fmt.Sprintf("- Total: %d", data.TotalDependencies))
+	text = append(text, "")
 
-	r = append(r, "## Vulnerabilities")
-	r = append(r, "")
-	r = append(r, fmt.Sprintf("- 🔵 Info: %d", vuls.Info))
-	r = append(r, fmt.Sprintf("- 🟢 Low: %d", vuls.Low))
-	r = append(r, fmt.Sprintf("- 🟡 Moderate: %d", vuls.Moderate))
-	r = append(r, fmt.Sprintf("- 🟠 High: %d", vuls.High))
-	r = append(r, fmt.Sprintf("- 🔴 Critical: %d", vuls.Critical))
-	r = append(r, "")
+	text = append(text, "## Vulnerabilities")
+	text = append(text, "")
+	text = append(text, fmt.Sprintf("- 🔵 Info: %d", vuls.Info))
+	text = append(text, fmt.Sprintf("- 🟢 Low: %d", vuls.Low))
+	text = append(text, fmt.Sprintf("- 🟡 Moderate: %d", vuls.Moderate))
+	text = append(text, fmt.Sprintf("- 🟠 High: %d", vuls.High))
+	text = append(text, fmt.Sprintf("- 🔴 Critical: %d", vuls.Critical))
+	text = append(text, "")
 
 	if len(lines) > 1 {
-		r = append(r, "## Advisories")
-		r = append(r, "")
+		text = append(text, "## Advisories")
+		text = append(text, "")
 
 		for _, line := range lines {
 			advisory := line.Data.Advisory
 			if line.Type == "auditAdvisory" {
-				r = append(r, fmt.Sprintf("### `%s`: %s", advisory.Severity, advisory.Title))
-				r = append(r, "")
-				r = append(r, "- URL: "+advisory.URL)
-				r = append(r, "")
+				text = append(text, fmt.Sprintf("### `%s`: %s", advisory.Severity, advisory.Title))
+				text = append(text, "")
+				text = append(text, "- URL: "+advisory.URL)
+				text = append(text, "")
 			}
 		}
 	}
 
-	return strings.Join(r, "\n"), nil
+	return strings.Join(text, "\n"), nil
 }
 
 func main() {
+	var (
+		auditFile               = "security-audit.json"
+		outputFile              = "security-audit.md"
+		failIfNoVulnerabilities = false
+	)
+
 	flaggy.String(&auditFile, "i", "audit-file", "Path to the audit file")
 	flaggy.String(&outputFile, "o", "output-file", "Path to the output file")
 	flaggy.Bool(&failIfNoVulnerabilities, "f", "fail-if-no-vulnerabilities", "Fail if no vulnerabilities found")
 	flaggy.Parse()
 
-	// Check existence of the audit file
+	// Check arguments
 	if auditFile == "" {
 		log.Fatal("Audit file is required")
+
 		return
 	}
+
+	// Check existence of the audit file
 	if _, err := os.Stat(auditFile); os.IsNotExist(err) {
 		log.Fatal("Audit file not found")
+
 		return
 	}
 
@@ -194,8 +211,9 @@ func main() {
 		log.Fatal("Error parsing JSON: ", err)
 	}
 
-	// Count the number of vulnerabilities
 	var totalVulnerabilities int
+
+	// Count the number of vulnerabilities
 	for _, line := range lines {
 		if line.Type == "auditSummary" {
 			totalVulnerabilities += line.Data.Vulnerabilities.Info
@@ -205,6 +223,7 @@ func main() {
 			totalVulnerabilities += line.Data.Vulnerabilities.Critical
 		}
 	}
+
 	if totalVulnerabilities == 0 && failIfNoVulnerabilities {
 		log.Fatal("No vulnerabilities found")
 	}
@@ -216,10 +235,10 @@ func main() {
 	}
 
 	// Print the audit content
-	fmt.Println(markdown)
+	log.Println(markdown)
 
 	// Write the markdown to the output file
-	err = os.WriteFile(outputFile, []byte(markdown), 0o644)
+	err = os.WriteFile(outputFile, []byte(markdown), 0o600)
 	if err != nil {
 		log.Fatal("Error writing to the output file: ", err)
 	}
