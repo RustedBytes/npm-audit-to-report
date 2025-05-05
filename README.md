@@ -43,17 +43,16 @@ go install golang.org/x/tools/cmd/deadcode@latest
 go install mvdan.cc/gofumpt@latest
 ```
 
-### Linting
+### Formatting and Linting
 
 ```shell
-betteralign -apply ./...
-golangci-lint run -c .golangci.yml ./...
-deadcode ./...
-gofumpt -l -w .
+just fmt
+
+just lint
 ```
 
 ### Release
 
 ```shell
-goreleaser build --clean --snapshot --timeout 60m
+just release
 ```
