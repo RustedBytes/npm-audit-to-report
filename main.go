@@ -15,6 +15,8 @@ import (
 	"github.com/integrii/flaggy"
 )
 
+const appVersion = "0.3.0"
+
 var (
 	errNoData    = errors.New("no data in the audit file")
 	errNoSummary = errors.New("no summary auditLine found")
@@ -88,7 +90,8 @@ func parseJSON(filename string) ([]auditLine, error) {
 	}
 
 	defer func() {
-		if err := file.Close(); err != nil {
+		err := file.Close()
+		if err != nil {
 			log.Fatal("Error closing file: ", err)
 		}
 	}()
@@ -186,6 +189,7 @@ func main() {
 		failIfNoVulnerabilities = false
 	)
 
+	flaggy.SetVersion(appVersion)
 	flaggy.String(&auditFile, "i", "audit-file", "Path to the audit file")
 	flaggy.String(&outputFile, "o", "output-file", "Path to the output file")
 	flaggy.Bool(&failIfNoVulnerabilities, "f", "fail-if-no-vulnerabilities", "Fail if no vulnerabilities found")
@@ -199,7 +203,8 @@ func main() {
 	}
 
 	// Check existence of the audit file
-	if _, err := os.Stat(auditFile); os.IsNotExist(err) {
+	_, err := os.Stat(auditFile)
+	if os.IsNotExist(err) {
 		log.Fatal("Audit file not found")
 
 		return

@@ -22,14 +22,17 @@ go install github.com/egorsmkv/npm-audit-to-report@latest
 ## Usage
 
 ```shell
-npm-audit-to-report [FLAGS]
+npm-audit-to-report
+
+  Subcommands:
+    completion   Generate shell completion script for bash or zsh.
 
   Flags:
-       --version                      Displays the program version string.
-    -h --help                         Displays help with available flag, subcommand, and positional value parameters.
-    -i --audit-file                   Path to the audit file (default: security-audit.json)
-    -o --output-file                  Path to the output file (default: security-audit.md)
-    -f --fail-if-no-vulnerabilities   Fail if no vulnerabilities found
+        --version                      Displays the program version string.
+    -h  --help                         Displays help with available flag, subcommand, and positional value parameters.
+    -i  --audit-file                   Path to the audit file (default: security-audit.json)
+    -o  --output-file                  Path to the output file (default: security-audit.md)
+    -f  --fail-if-no-vulnerabilities   Fail if no vulnerabilities found
 ```
 
 ## Development
@@ -38,7 +41,7 @@ npm-audit-to-report [FLAGS]
 
 ```shell
 go install github.com/dkorunic/betteralign/cmd/betteralign@latest
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.6
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.5.0
 go install golang.org/x/tools/cmd/deadcode@latest
 go install mvdan.cc/gofumpt@latest
 ```
