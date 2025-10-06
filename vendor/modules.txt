@@ -4,6 +4,6 @@ github.com/bykof/gostradamus
 # github.com/dustin/go-humanize v1.0.1
 ## explicit; go 1.16
 github.com/dustin/go-humanize
-# github.com/integrii/flaggy v1.7.1
+# github.com/integrii/flaggy v1.8.0
 ## explicit; go 1.25
 github.com/integrii/flaggy
