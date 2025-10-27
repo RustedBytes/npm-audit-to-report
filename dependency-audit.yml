@@ -25,7 +25,7 @@ jobs:
 
       - name: Generate report
         run: |
-          wget -O "audit-to-report" "https://github.com/egorsmkv/npm-audit-to-report/releases/download/v0.4.0/npm-audit-to-report"
+          wget -O "audit-to-report" "https://github.com/RustedBytes/npm-audit-to-report/releases/download/v0.4.0/npm-audit-to-report"
           chmod +x ./audit-to-report
           ./audit-to-report --audit-file security-audit.json --output-file report.md
 
