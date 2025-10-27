@@ -17,6 +17,8 @@ jobs:
           key: stable
       - name: Build release
         run: cargo build --release
+      - name: Strip binary
+        run: strip target/release/npm-audit-to-report
       - name: Upload release binary as artifact
         uses: actions/upload-artifact@v4
         with:
