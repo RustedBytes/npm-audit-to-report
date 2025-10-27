@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process;
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -8,10 +8,11 @@ use chrono::Utc;
 use clap::Parser;
 use serde::Deserialize;
 
-const APP_VERSION: &str = "0.4.0";
-
 #[derive(Parser, Debug, Clone)]
-#[command(version = APP_VERSION, about = "Convert npm audit JSON lines into a Markdown summary.")]
+#[command(
+    version,
+    about = "Convert npm audit JSON lines into a Markdown summary."
+)]
 struct Cli {
     #[arg(
         short = 'i',
@@ -88,15 +89,21 @@ struct Vulnerabilities {
     critical: i64,
 }
 
-fn parse_json(path: &PathBuf) -> Result<Vec<AuditLine>> {
-    let file = File::open(path)
-        .with_context(|| format!("unable to open audit file {}", path.display()))?;
+fn parse_json(path: impl AsRef<Path>) -> Result<Vec<AuditLine>> {
+    let path_ref = path.as_ref();
+    let file = File::open(path_ref)
+        .with_context(|| format!("unable to open audit file {}", path_ref.display()))?;
     let reader = BufReader::new(file);
     let mut lines = Vec::new();
 
     for (index, line_result) in reader.lines().enumerate() {
-        let line = line_result
-            .with_context(|| format!("error reading line {} from {}", index + 1, path.display()))?;
+        let line = line_result.with_context(|| {
+            format!(
+                "error reading line {} from {}",
+                index + 1,
+                path_ref.display()
+            )
+        })?;
         if line.trim().is_empty() {
             continue;
         }
@@ -105,7 +112,7 @@ fn parse_json(path: &PathBuf) -> Result<Vec<AuditLine>> {
             format!(
                 "error parsing JSON on line {} of {}",
                 index + 1,
-                path.display()
+                path_ref.display()
             )
         })?;
         lines.push(parsed);
@@ -234,7 +241,7 @@ mod tests {
         writeln!(file, "{}", sample_summary_line()).unwrap();
         writeln!(file, "{}", sample_advisory_line()).unwrap();
 
-        let lines = parse_json(&file.path().to_path_buf()).expect("parse JSON lines");
+        let lines = parse_json(file.path()).expect("parse JSON lines");
         assert_eq!(lines.len(), 2);
         assert_eq!(lines[0].kind, "auditSummary");
         assert_eq!(lines[1].kind, "auditAdvisory");
@@ -243,7 +250,7 @@ mod tests {
     #[test]
     fn parse_json_errors_on_empty_file() {
         let file = NamedTempFile::new().expect("create temp file");
-        let err = parse_json(&file.path().to_path_buf()).expect_err("expected error");
+        let err = parse_json(file.path()).expect_err("expected error");
         assert_eq!(err.root_cause().to_string(), "no data in the audit file");
     }
 
