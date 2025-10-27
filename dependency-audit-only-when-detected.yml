@@ -12,9 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -27,12 +24,12 @@ jobs:
         continue-on-error: true
         run: yarn audit --json > security-audit.json
 
-      - name: Build npm-audit-to-report
-        run: cargo build --release
-
       - name: Generate report
         continue-on-error: true
-        run: target/release/npm-audit-to-report --fail-if-no-vulnerabilities --audit-file security-audit.json --output-file report.md
+        run: |
+          wget -O "audit-to-report" "https://github.com/egorsmkv/npm-audit-to-report/releases/download/v0.4.0/npm-audit-to-report"
+          chmod +x ./audit-to-report
+          ./audit-to-report --fail-if-no-vulnerabilities --audit-file security-audit.json --output-file report.md
 
       - name: Create issue if problems found
         uses: peter-evans/create-issue-from-file@v5
