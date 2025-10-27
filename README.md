@@ -1,6 +1,6 @@
 # npm-audit-to-report
 
-[![build](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml)
+[![build](https://github.com/RustedBytes/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/RustedBytes/npm-audit-to-report/actions/workflows/build.yml)
 
 A lightweight Rust CLI for turning newline-delimited `npm audit --json` or `yarn audit --json` output into a readable Markdown report. Drop the generated file into GitHub issues, Slack, release notes, or wherever you track security work.
 
