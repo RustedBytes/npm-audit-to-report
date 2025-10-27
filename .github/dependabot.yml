@@ -5,8 +5,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"
 
-  - package-ecosystem: "gomod"
+  - package-ecosystem: "cargo"
     directory: "/"
     schedule:
       interval: "weekly"
+    labels:
+      - "dependencies"
+      - "rust"
