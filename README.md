@@ -1,6 +1,6 @@
 # npm-audit-to-report
 
-[![build](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml) [![lint](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml)
+[![build](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml)
 
 A lightweight Rust CLI that converts `security-audit.json` into `security-audit.md`, ready to drop into any CI pipeline.
 
