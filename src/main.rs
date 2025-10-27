@@ -8,6 +8,7 @@ use chrono::Utc;
 use clap::Parser;
 use serde::Deserialize;
 
+/// CLI flags controlling the input audit file, output destination, and failure mode.
 #[derive(Parser, Debug, Clone)]
 #[command(
     version,
@@ -89,6 +90,7 @@ struct Vulnerabilities {
     critical: i64,
 }
 
+/// Parse each JSON line from the npm audit output into strongly typed records.
 fn parse_json(path: impl AsRef<Path>) -> Result<Vec<AuditLine>> {
     let path_ref = path.as_ref();
     let file = File::open(path_ref)
@@ -125,6 +127,7 @@ fn parse_json(path: impl AsRef<Path>) -> Result<Vec<AuditLine>> {
     Ok(lines)
 }
 
+/// Build the Markdown report sections from the parsed audit lines.
 fn generate_markdown(lines: &[AuditLine]) -> Result<String> {
     if lines.is_empty() {
         return Err(anyhow!("no data in the audit file"));
@@ -166,6 +169,7 @@ fn generate_markdown(lines: &[AuditLine]) -> Result<String> {
         for line in lines.iter().filter(|line| line.kind == "auditAdvisory") {
             if let Some(advisory) = &line.data.advisory {
                 if !advisories_added {
+                    // Render the header lazily so we skip the section if no advisories exist.
                     text.push("## Advisories".to_string());
                     text.push(String::new());
                     advisories_added = true;
@@ -182,6 +186,7 @@ fn generate_markdown(lines: &[AuditLine]) -> Result<String> {
     Ok(text.join("\n"))
 }
 
+/// Orchestrate reading the audit file, generating Markdown, and honoring flags.
 fn run(cli: Cli) -> Result<()> {
     if cli.audit_file.as_os_str().is_empty() {
         bail!("audit file is required");
@@ -203,6 +208,7 @@ fn run(cli: Cli) -> Result<()> {
 
     let markdown = generate_markdown(&lines)?;
 
+    // Emit the report both to stdout and to the requested file.
     println!("{}", markdown);
     std::fs::write(&cli.output_file, markdown)
         .with_context(|| format!("failed to write {}", cli.output_file.display()))?;
@@ -213,6 +219,7 @@ fn run(cli: Cli) -> Result<()> {
 fn main() {
     let cli = Cli::parse();
 
+    // Surface the error and exit non-zero so CI tooling fails fast.
     if let Err(err) = run(cli) {
         eprintln!("Error: {err}");
         process::exit(1);
