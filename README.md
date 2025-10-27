@@ -19,7 +19,7 @@ A lightweight Rust CLI for turning newline-delimited `npm audit --json` or `yarn
 Install straight from the repository:
 
 ```bash
-cargo install --locked --git https://github.com/egorsmkv/npm-audit-to-report.git
+cargo install --locked --git https://github.com/RustedBytes/npm-audit-to-report.git
 ```
 
 Or build once and copy the binary wherever you need it:
@@ -60,7 +60,7 @@ cp target/release/npm-audit-to-report /usr/local/bin
 - 🔴 Critical: 0
 ```
 
-<img loading="lazy" alt="npm-audit-to-report demo" width="800px" src="https://github.com/egorsmkv/npm-audit-to-report/raw/main/demo.png" />
+<img loading="lazy" alt="npm-audit-to-report demo" width="800px" src="https://github.com/RustedBytes/npm-audit-to-report/raw/main/demo.png" />
 
 ## CLI Options
 
@@ -83,8 +83,8 @@ When `--fail-if-no-vulnerabilities` is set, the process exits with a non-zero st
 
 This repository includes two ready-to-use GitHub Actions workflows:
 
-- [`dependency-audit.yml`](https://github.com/egorsmkv/npm-audit-to-report/blob/main/dependency-audit.yml) – always generates a report and opens an issue every successful run.
-- [`dependency-audit-only-when-detected.yml`](https://github.com/egorsmkv/npm-audit-to-report/blob/main/dependency-audit-only-when-detected.yml) – combines `--fail-if-no-vulnerabilities` with conditional steps so issues appear only when vulnerabilities exist.
+- [`dependency-audit.yml`](https://github.com/RustedBytes/npm-audit-to-report/blob/main/dependency-audit.yml) – always generates a report and opens an issue every successful run.
+- [`dependency-audit-only-when-detected.yml`](https://github.com/RustedBytes/npm-audit-to-report/blob/main/dependency-audit-only-when-detected.yml) – combines `--fail-if-no-vulnerabilities` with conditional steps so issues appear only when vulnerabilities exist.
 
 Both examples install dependencies, run `yarn audit --json`, build the CLI, and post the Markdown as the issue body. Adapt them to your own workflow, or copy the relevant steps into other CI providers.
 
