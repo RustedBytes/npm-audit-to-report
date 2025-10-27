@@ -1,9 +1,8 @@
 # npm-audit-to-report
 
-[![build](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml)
-[![lint](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml)
+[![build](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/build.yml) [![lint](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml/badge.svg)](https://github.com/egorsmkv/npm-audit-to-report/actions/workflows/lint.yml)
 
-A simple Go program that converts `security-audit.json` to `security-audit.md` so you can use it in CI pipeline.
+A lightweight Rust CLI that converts `security-audit.json` into `security-audit.md`, ready to drop into any CI pipeline.
 
 ## Demo
 
@@ -16,46 +15,36 @@ You can check [dependency-audit.yml](https://github.com/egorsmkv/npm-audit-to-re
 ## Install
 
 ```bash
-go install github.com/egorsmkv/npm-audit-to-report@latest
+cargo install --locked --git https://github.com/egorsmkv/npm-audit-to-report.git
 ```
 
 ## Usage
 
 ```shell
-npm-audit-to-report
+Convert npm audit JSON lines into a Markdown summary.
 
-  Subcommands:
-    completion   Generate shell completion script for bash or zsh.
+Usage: npm-audit-to-report [OPTIONS]
 
-  Flags:
-        --version                      Displays the program version string.
-    -h  --help                         Displays help with available flag, subcommand, and positional value parameters.
-    -i  --audit-file                   Path to the audit file (default: security-audit.json)
-    -o  --output-file                  Path to the output file (default: security-audit.md)
-    -f  --fail-if-no-vulnerabilities   Fail if no vulnerabilities found
+Options:
+  -i, --audit-file <AUDIT_FILE>     [default: security-audit.json]
+  -o, --output-file <OUTPUT_FILE>   [default: security-audit.md]
+  -f, --fail-if-no-vulnerabilities
+  -h, --help                        Print help
+  -V, --version                     Print version
 ```
 
 ## Development
-
-### Install tools
-
-```shell
-go install github.com/dkorunic/betteralign/cmd/betteralign@latest
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.5.0
-go install golang.org/x/tools/cmd/deadcode@latest
-go install mvdan.cc/gofumpt@latest
-```
-
-### Formatting and Linting
 
 ```shell
 just fmt
 
 just lint
+
+just test
 ```
 
 ### Release
 
 ```shell
-just release
+cargo build --release
 ```

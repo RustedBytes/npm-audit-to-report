@@ -4,3 +4,4 @@ security-audit.md
 npm-audit-to-report
 
 dist/
+target/

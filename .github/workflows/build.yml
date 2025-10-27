@@ -1,21 +1,30 @@
 name: build
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   build:
     name: continuous-integration
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version: stable
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: build
-        run: go build main.go
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Lint
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+      - name: Build release binary
+        run: cargo build --release
