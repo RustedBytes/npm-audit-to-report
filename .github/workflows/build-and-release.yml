@@ -20,7 +20,7 @@ jobs:
       - name: Strip binary
         run: strip target/release/npm-audit-to-report
       - name: Upload release binary as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: npm-audit-to-report
           path: target/release/npm-audit-to-report
